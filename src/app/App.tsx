@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { ImageWithFallback } from "@/app/components/figma/ImageWithFallback";
 import logoImg from "@/imports/logo.png";
+import WppRedirect from "@/app/WppRedirect";
 import {
   CheckCircle, Star, Zap, Shield, Clock, ChevronDown,
   MessageCircle, Sparkles, Users, MapPin, ArrowRight, X,
@@ -977,10 +978,9 @@ function Footer() {
   );
 }
 
-// ─── App ──────────────────────────────────────────────────────────────────────
-export default function App() {
+// ─── Landing Page ─────────────────────────────────────────────────────────────
+function LandingPage() {
   const [formOpen, setFormOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: FONT_BODY }}>
       <NavBar onOpenForm={() => setFormOpen(true)} />
@@ -996,4 +996,17 @@ export default function App() {
       <LeadFormModal open={formOpen} onClose={() => setFormOpen(false)} />
     </div>
   );
+}
+
+// ─── App ──────────────────────────────────────────────────────────────────────
+export default function App() {
+  const path = window.location.pathname.replace(/\/$/, "");
+
+  if (path === "/wpp-amr") {
+    return <WppRedirect origem="espacolaseramericana" label="Clique WhatsApp - Americana" />;
+  }
+  if (path === "/wpp-tvl") {
+    return <WppRedirect origem="espacolasertivoli" label="Clique WhatsApp - Tivoli" />;
+  }
+  return <LandingPage />;
 }
