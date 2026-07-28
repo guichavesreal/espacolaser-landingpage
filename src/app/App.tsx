@@ -1002,7 +1002,7 @@ function LandingPage() {
 export default function App() {
   const path = window.location.pathname.replace(/\/$/, "");
 
-  if (path === "/wpp-amr") {
+  if (path === "/wpp") {
     return <WppRedirect origem="espacolaseramericana" label="Clique WhatsApp - Americana" />;
   }
   if (path === "/wpp-tvl") {
