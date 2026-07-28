@@ -18,8 +18,50 @@ const BLUE = "#003FC3";
 const TEAL = "#0a5470";
 const TEAL_DARK = "#063347";
 
-// ─── NavBar ────────────────────────────────────────────────────────────────────
-function NavBar({ onScrollToForm }: { onScrollToForm: () => void }) {
+// Cole abaixo a URL da implantação do Google Apps Script terminada em /exec.
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbrZF3ROnEOOBa5u0w0xSSfRNC3e4vUiTewMXMn-s565Dqfg93wWD-VLRB_mpkxotD_A/exec";
+
+type LeadSource = "modal_quero_ser_avisado" | "formulario_secao";
+
+async function sendLeadToGoogleSheets({
+  name,
+  phone,
+  source,
+}: {
+  name: string;
+  phone: string;
+  source: LeadSource;
+}) {
+  if (!GOOGLE_SCRIPT_URL.startsWith("https://script.google.com/macros/s/")) {
+    throw new Error("A URL do Google Apps Script ainda não foi configurada.");
+  }
+
+  const body = new URLSearchParams({
+    nome: name.trim(),
+    whatsapp: phone.trim(),
+    origem: source,
+    pagina: window.location.href,
+  });
+
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 15000);
+
+  try {
+    // no-cors evita o bloqueio do navegador no redirecionamento do Apps Script.
+    // A resposta é opaca, mas o POST é enviado normalmente ao script.
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body,
+      signal: controller.signal,
+    });
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+// ─── Navbar ───────────────────────────────────────────────────────────────────
+function NavBar({ onOpenForm }: { onOpenForm: () => void }) {
   const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 40);
