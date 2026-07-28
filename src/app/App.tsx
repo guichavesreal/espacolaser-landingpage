@@ -16,7 +16,7 @@ const FONT_BODY = "'Open Sans', sans-serif";
 
 
 // Cole abaixo a URL da implantação do Google Apps Script terminada em /exec.
-const GOOGLE_SCRIPT_URL = "COLE_AQUI_A_URL_DO_APP_DA_WEB";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzG6tfdpPOuL45YJub2UKSj3UWqKT4bqeFtWAWBQMWmneCOvxXLl0t9qkjjUEtXYECK0Q/exec";
 
 type LeadSource = "modal_quero_ser_avisado" | "formulario_secao";
 
@@ -959,7 +959,7 @@ function LeadFormSection() {
                 </p>
               )}
               <p className="text-center text-xs text-muted-foreground" style={{ fontFamily: FONT_BODY }}>
-                Entraremos em contato em até 24h úteis. Seus dados são confidenciais.
+                Entraremos em contato assim que possível. Seus dados são confidenciais.
               </p>
             </form>
           ) : (
