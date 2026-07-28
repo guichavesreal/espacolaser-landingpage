@@ -14,6 +14,49 @@ const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=Ol%C3%A1!%20Vim%20pe
 const FONT_HEADING = "'Montserrat', sans-serif";
 const FONT_BODY = "'Open Sans', sans-serif";
 
+
+// Cole abaixo a URL da implantação do Google Apps Script terminada em /exec.
+const GOOGLE_SCRIPT_URL = "COLE_AQUI_A_URL_DO_APP_DA_WEB";
+
+type LeadSource = "modal_quero_ser_avisado" | "formulario_secao";
+
+async function sendLeadToGoogleSheets({
+  name,
+  phone,
+  source,
+}: {
+  name: string;
+  phone: string;
+  source: LeadSource;
+}) {
+  if (!GOOGLE_SCRIPT_URL.startsWith("https://script.google.com/macros/s/")) {
+    throw new Error("A URL do Google Apps Script ainda não foi configurada.");
+  }
+
+  const body = new URLSearchParams({
+    nome: name.trim(),
+    whatsapp: phone.trim(),
+    origem: source,
+    pagina: window.location.href,
+  });
+
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 15000);
+
+  try {
+    // no-cors evita o bloqueio do navegador no redirecionamento do Apps Script.
+    // A resposta é opaca, mas o POST é enviado normalmente ao script.
+    await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body,
+      signal: controller.signal,
+    });
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 function NavBar({ onOpenForm }: { onOpenForm: () => void }) {
   const [scrolled, setScrolled] = useState(false);
@@ -584,6 +627,7 @@ function LeadFormModal({ open, onClose }: { open: boolean; onClose: () => void }
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   function formatPhone(value: string) {
     const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -596,14 +640,30 @@ function LeadFormModal({ open, onClose }: { open: boolean; onClose: () => void }
     setPhone(formatPhone(e.target.value));
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || phone.replace(/\D/g, "").length < 10) return;
+
+    if (!name.trim() || phone.replace(/\D/g, "").length < 10) {
+      setError("Preencha seu nome e um WhatsApp válido.");
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError("");
+
+    try {
+      await sendLeadToGoogleSheets({
+        name,
+        phone,
+        source: "modal_quero_ser_avisado",
+      });
       setSubmitted(true);
-    }, 800);
+    } catch (submitError) {
+      console.error("Erro ao enviar lead:", submitError);
+      setError("Não foi possível enviar agora. Confira sua conexão e tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleClose() {
@@ -612,6 +672,7 @@ function LeadFormModal({ open, onClose }: { open: boolean; onClose: () => void }
       setSubmitted(false);
       setName("");
       setPhone("");
+      setError("");
     }, 400);
   }
 
@@ -703,6 +764,15 @@ function LeadFormModal({ open, onClose }: { open: boolean; onClose: () => void }
               >
                 {loading ? "Enviando..." : "Quero ser contatado(a) →"}
               </button>
+              {error && (
+                <p
+                  role="alert"
+                  className="text-center text-xs font-semibold text-red-600"
+                  style={{ fontFamily: FONT_BODY }}
+                >
+                  {error}
+                </p>
+              )}
               <p className="text-center text-xs text-muted-foreground" style={{ fontFamily: FONT_BODY }}>
                 Seus dados são confidenciais. Nada de spam.
               </p>
@@ -750,6 +820,7 @@ function LeadFormSection() {
   const [phone, setPhone] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   function formatPhone(value: string) {
     const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -758,14 +829,30 @@ function LeadFormSection() {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || phone.replace(/\D/g, "").length < 10) return;
+
+    if (!name.trim() || phone.replace(/\D/g, "").length < 10) {
+      setError("Preencha seu nome e um WhatsApp válido.");
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    setError("");
+
+    try {
+      await sendLeadToGoogleSheets({
+        name,
+        phone,
+        source: "formulario_secao",
+      });
       setSubmitted(true);
-    }, 800);
+    } catch (submitError) {
+      console.error("Erro ao enviar lead:", submitError);
+      setError("Não foi possível enviar agora. Confira sua conexão e tente novamente.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -862,6 +949,15 @@ function LeadFormSection() {
               >
                 {loading ? "Enviando..." : "Quero ser contatado(a) →"}
               </button>
+              {error && (
+                <p
+                  role="alert"
+                  className="text-center text-xs font-semibold text-red-600"
+                  style={{ fontFamily: FONT_BODY }}
+                >
+                  {error}
+                </p>
+              )}
               <p className="text-center text-xs text-muted-foreground" style={{ fontFamily: FONT_BODY }}>
                 Entraremos em contato em até 24h úteis. Seus dados são confidenciais.
               </p>
