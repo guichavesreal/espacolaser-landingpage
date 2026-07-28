@@ -472,21 +472,21 @@ function HowItWorks() {
 const testimonials = [
   {
     name: "Camila Rodrigues",
-    region: "Campinas, SP",
+    region: "Americana, SP",
     text: "Fiz 8 sessões e o resultado superou tudo que eu esperava. Minha pele ficou completamente lisa. Melhor investimento que já fiz na minha vida!",
     stars: 5,
     img: "https://images.unsplash.com/photo-1544717304-a2db4a7b16ee?w=60&h=60&fit=crop&auto=format",
   },
   {
     name: "Fernanda Lima",
-    region: "Ribeirão Preto, SP",
+    region: "Sumaré, SP",
     text: "Tinha muito medo da dor e fui totalmente surpreendida. Quase não senti nada! O atendimento é super acolhedor. Já indiquei para todas as amigas.",
     stars: 5,
     img: "https://images.unsplash.com/photo-1539172146135-23cf5c773474?w=60&h=60&fit=crop&auto=format",
   },
   {
     name: "Juliana Matos",
-    region: "São Paulo, SP",
+    region: "Santa Bárbara d'Oeste, SP",
     text: "O agendamento pelo WhatsApp é muito prático. Os resultados apareceram rápido — já na 3ª sessão vi uma diferença enorme. Estou amando!",
     stars: 5,
     img: "https://images.unsplash.com/photo-1733685372930-ee012533a876?w=60&h=60&fit=crop&auto=format",
