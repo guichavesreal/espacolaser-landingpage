@@ -9,5 +9,6 @@
 
   Run `npm run dev` to start the development server.
   
+ Run `npm run build` to start the build.
 
   Author: Gui Chaves
