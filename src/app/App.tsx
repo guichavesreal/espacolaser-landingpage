@@ -16,7 +16,7 @@ const FONT_BODY = "'Open Sans', sans-serif";
 
 
 // Cole abaixo a URL da implantação do Google Apps Script terminada em /exec.
-const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzG6tfdpPOuL45YJub2UKSj3UWqKT4bqeFtWAWBQMWmneCOvxXLl0t9qkjjUEtXYECK0Q/exec";
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbrZF3ROnEOOBa5u0w0xSSfRNC3e4vUiTewMXMn-s565Dqfg93wWD-VLRB_mpkxotD_A/exec";
 
 type LeadSource = "modal_quero_ser_avisado" | "formulario_secao";
 

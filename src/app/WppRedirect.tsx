@@ -4,7 +4,7 @@ const GTM_ID = "GTM-TNMM6F66";
 const GA_ID = "G-DZW429EFK8";
 const META_PIXEL_ID = "1179417823827972";
 const SHEETS_URL =
-  "https://script.google.com/macros/s/AKfycbzG6tfdpPOuL45YJub2UKSj3UWqKT4bqeFtWAWBQMWmneCOvxXLl0t9qkjjUEtXYECK0Q/exec";
+  "https://script.google.com/macros/s/AKfycbzbrZF3ROnEOOBa5u0w0xSSfRNC3e4vUiTewMXMn-s565Dqfg93wWD-VLRB_mpkxotD_A/exec";
 const WPP_NUMBER = "5519998392091";
 
 declare global {
