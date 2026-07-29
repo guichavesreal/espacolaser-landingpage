@@ -38,7 +38,6 @@ export default function WppRedirect({ origem, label, metaPixelId }: Props) {
     window.dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
 
     const gtmInline = document.createElement("script");
-    gtmInline.type = "text/javascript";
     gtmInline.text = `(function (w, d, s, l, i) {
             w[l] = w[l] || []; w[l].push({
                 'gtm.start': new Date().getTime(), event: 'gtm.js'
@@ -53,7 +52,6 @@ export default function WppRedirect({ origem, label, metaPixelId }: Props) {
 
     // ── 2. gtag (load lib then initialise) ───────────────────────────────────
     const gtagScript = document.createElement("script");
-    gtagScript.type = "text/javascript";
     gtagScript.async = true;
     gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
     document.head.appendChild(gtagScript);
@@ -81,9 +79,7 @@ export default function WppRedirect({ origem, label, metaPixelId }: Props) {
       window._fbq = window.fbq = fbq;
 
       const pixelScript = document.createElement("script");
-      pixelScript.type = "text/javascript";
       pixelScript.async = true;
-      pixelScript.crossOrigin = "anonymous";
       pixelScript.src = "https://connect.facebook.net/en_US/fbevents.js";
       document.head.appendChild(pixelScript);
     }
