@@ -1093,12 +1093,15 @@ function LandingPage() {
 
     // GTM IIFE
     const gtmInline = document.createElement("script");
+    gtmInline.type = "text/javascript";
     gtmInline.text = `(function (w, d, s, l, i) {\n            w[l] = w[l] || []; w[l].push({\n                'gtm.start': new Date().getTime(), event: 'gtm.js'\n            });\n            var f = d.getElementsByTagName(s)[0],\n                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';\n            j.async = true;\n            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;\n            f.parentNode.insertBefore(j, f);\n        })(window, document, 'script', 'dataLayer', '${GTM_ID}');`;
     document.head.appendChild(gtmInline);
 
     // gtag library + init
     const gtagScript = document.createElement("script");
+    gtagScript.type = "text/javascript";
     gtagScript.async = true;
+    gtagScript.crossOrigin = "anonymous";
     gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
     document.head.appendChild(gtagScript);
     // configure gtag after the script loads to ensure config runs before events
@@ -1166,7 +1169,9 @@ function LandingPage() {
       (window as any)._fbq = (window as any).fbq = fbq;
 
       const pixelScript = document.createElement("script");
+      pixelScript.type = "text/javascript";
       pixelScript.async = true;
+      pixelScript.crossOrigin = "anonymous";
       pixelScript.src = "https://connect.facebook.net/en_US/fbevents.js";
       document.head.appendChild(pixelScript);
     }
