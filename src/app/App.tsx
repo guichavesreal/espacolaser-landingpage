@@ -1077,6 +1077,65 @@ function Footer() {
 // ─── Landing Page ─────────────────────────────────────────────────────────────
 function LandingPage() {
   const [formOpen, setFormOpen] = useState(false);
+  useEffect(() => {
+    const GTM_ID = "GTM-TNMM6F66";
+    const GA_ID = "G-DZW429EFK8";
+    const META_PIXEL_ID = "1179417823827972";
+
+    // GTM noscript iframe
+    try {
+      const ns = document.createElement("noscript");
+      ns.innerHTML = `<iframe src="https://www.googletagmanager.com/ns.html?id=${GTM_ID}" height="0" width="0" style="display:none;visibility:hidden"></iframe>`;
+      document.body.appendChild(ns);
+    } catch (e) {
+      // ignore
+    }
+
+    // GTM IIFE
+    const gtmInline = document.createElement("script");
+    gtmInline.text = `(function (w, d, s, l, i) {\n            w[l] = w[l] || []; w[l].push({\n                'gtm.start': new Date().getTime(), event: 'gtm.js'\n            });\n            var f = d.getElementsByTagName(s)[0],\n                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';\n            j.async = true;\n            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;\n            f.parentNode.insertBefore(j, f);\n        })(window, document, 'script', 'dataLayer', '${GTM_ID}');`;
+    document.head.appendChild(gtmInline);
+
+    // gtag library + init
+    const gtagScript = document.createElement("script");
+    gtagScript.async = true;
+    gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+    document.head.appendChild(gtagScript);
+    (window as any).dataLayer = (window as any).dataLayer || [];
+    (window as any).gtag = function (...args: unknown[]) {
+      (window as any).dataLayer.push(args);
+    };
+    (window as any).gtag("js", new Date());
+    (window as any).gtag("config", GA_ID);
+
+    // Meta Pixel
+    if (!(window as any).fbq) {
+      const fbq = Object.assign(
+        function (...args: unknown[]) {
+          if ((fbq as any).callMethod) (fbq as any).callMethod(...args);
+          else (fbq as any).queue.push(args);
+        },
+        { queue: [] as unknown[], loaded: true, version: "2.0", push: (...args: unknown[]) => (fbq as any).queue.push(args) }
+      );
+      (window as any)._fbq = (window as any).fbq = fbq;
+
+      const pixelScript = document.createElement("script");
+      pixelScript.async = true;
+      pixelScript.src = "https://connect.facebook.net/en_US/fbevents.js";
+      document.head.appendChild(pixelScript);
+    }
+    (window as any).fbq("init", META_PIXEL_ID);
+    (window as any).fbq("track", "PageView");
+
+    // Meta Pixel noscript fallback
+    try {
+      const nsImg = document.createElement("noscript");
+      nsImg.innerHTML = `<img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1" />`;
+      document.body.appendChild(nsImg);
+    } catch (e) {
+      // ignore
+    }
+  }, []);
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: FONT_BODY }}>
       <NavBar onOpenForm={() => setFormOpen(true)} />
@@ -1102,7 +1161,13 @@ export default function App() {
     return <WppRedirect origem="espacolaseramericana" label="Clique WhatsApp - Americana" />;
   }
   if (path === "/wpp-tvl") {
-    return <WppRedirect origem="espacolasertivoli" label="Clique WhatsApp - Tivoli" />;
+    return (
+      <WppRedirect
+        origem="espacolasertivoli"
+        label="Clique WhatsApp - Tivoli"
+        metaPixelId="2511972145883369"
+      />
+    );
   }
   return <LandingPage />;
 }
