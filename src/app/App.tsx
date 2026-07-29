@@ -1101,12 +1101,58 @@ function LandingPage() {
     gtagScript.async = true;
     gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
     document.head.appendChild(gtagScript);
-    (window as any).dataLayer = (window as any).dataLayer || [];
-    (window as any).gtag = function (...args: unknown[]) {
-      (window as any).dataLayer.push(args);
+    // configure gtag after the script loads to ensure config runs before events
+    (gtagScript as HTMLScriptElement).onload = () => {
+      (window as any).dataLayer = (window as any).dataLayer || [];
+      (window as any).gtag = function (...args: unknown[]) {
+        (window as any).dataLayer.push(args);
+      };
+      (window as any).gtag("js", new Date());
+      (window as any).gtag("config", GA_ID);
+      (window as any).__gtagInitialized = true;
     };
-    (window as any).gtag("js", new Date());
-    (window as any).gtag("config", GA_ID);
+
+    // helper to wait for gtag initialization
+    function waitForGtag(timeout = 3000) {
+      return new Promise<boolean>((resolve) => {
+        const checkInterval = 100;
+        let elapsed = 0;
+        if ((window as any).__gtagInitialized) return resolve(true);
+        const iv = setInterval(() => {
+          elapsed += checkInterval;
+          if ((window as any).__gtagInitialized) {
+            clearInterval(iv);
+            clearTimeout(to);
+            resolve(true);
+          } else if (elapsed >= timeout) {
+            clearInterval(iv);
+            resolve(false);
+          }
+        }, checkInterval);
+        const to = setTimeout(() => {
+          clearInterval(iv);
+          resolve(false);
+        }, timeout);
+      });
+    }
+
+    // expose a safeGtag wrapper globally: waits for initialization then calls gtag
+    (window as any).__waitForGtag = waitForGtag;
+    (window as any).safeGtag = async (...args: unknown[]) => {
+      const ready = await waitForGtag(3000);
+      if (!ready) {
+        try {
+          (window as any).gtag && (window as any).gtag("config", GA_ID);
+        } catch (e) {
+          /* ignore */
+        }
+      }
+      try {
+        (window as any).gtag && (window as any).gtag(...args);
+      } catch (e) {
+        /* ignore */
+      }
+    };
 
     // Meta Pixel
     if (!(window as any).fbq) {
