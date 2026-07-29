@@ -56,17 +56,13 @@ export default function WppRedirect({ origem, label, metaPixelId }: Props) {
     gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
     document.head.appendChild(gtagScript);
 
-    // configure gtag once the library loads to avoid "Hits delayed"
-    const gtagScriptOnload = () => {
-      window.dataLayer = window.dataLayer || [];
-      window.gtag = function (...args: unknown[]) {
-        window.dataLayer.push(args);
-      };
-      window.gtag("js", new Date());
-      window.gtag("config", GA_ID);
-      (window as any).__gtagInitialized = true;
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function (...args: unknown[]) {
+      window.dataLayer.push(args);
     };
-    gtagScript.onload = gtagScriptOnload;
+    window.gtag("js", new Date());
+    window.gtag("config", GA_ID);
+
     // ── 3. Meta Pixel ────────────────────────────────────────────────────────
     if (!window.fbq) {
       const fbq: Window["fbq"] = Object.assign(
@@ -114,75 +110,30 @@ export default function WppRedirect({ origem, label, metaPixelId }: Props) {
 
     setStatus("Registrando clique...");
 
-    // helper: espera o carregamento/inicialização do gtag antes de enviar eventos
-    function waitForGtag(timeout = 3000) {
-      return new Promise<boolean>((resolve) => {
-        const checkInterval = 100;
-        let elapsed = 0;
-        if ((window as any).__gtagInitialized) return resolve(true);
-        const iv = setInterval(() => {
-          elapsed += checkInterval;
-          if ((window as any).__gtagInitialized) {
-            clearInterval(iv);
-            clearTimeout(to);
-            resolve(true);
-          } else if (elapsed >= timeout) {
-            clearInterval(iv);
-            resolve(false);
-          }
-        }, checkInterval);
-        const to = setTimeout(() => {
-          clearInterval(iv);
-          resolve(false);
-        }, timeout);
-      });
-    }
-
     fetch(SHEETS_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(utmData),
     }).finally(() => {
-      (async () => {
-        // aguarda inicialização do gtag (ou timeout)
-        const ready = await waitForGtag(3000);
-        if (!ready) {
-          try {
-            window.gtag && window.gtag("config", GA_ID);
-          } catch (e) {
-            // ignore
-          }
-        }
+      // ── 5. Dispara eventos após registro ────────────────────────────────────
+      window.fbq("track", "Contact");
+      window.gtag("event", "contact", {
+        event_category: "WhatsApp",
+        event_label: label,
+        utm_source: utmData.utm_source,
+        utm_campaign: utmData.utm_campaign,
+        utm_content: utmData.utm_content,
+        utm_term: utmData.utm_term,
+      });
 
-        // ── 5. Dispara eventos após registro ──────────────────────────────────
-        try {
-          window.fbq("track", "Contact");
-        } catch (e) {
-          /* ignore */
-        }
+      setStatus("Redirecionando para o WhatsApp...");
 
-        try {
-          window.gtag && window.gtag("event", "contact", {
-            event_category: "WhatsApp",
-            event_label: label,
-            utm_source: utmData.utm_source,
-            utm_campaign: utmData.utm_campaign,
-            utm_content: utmData.utm_content,
-            utm_term: utmData.utm_term,
-          });
-        } catch (e) {
-          /* ignore */
-        }
+      const mensagem = utmData.utm_term
+        ? `Olá! Vi o anúncio da @${origem} de ${utmData.utm_term} e quero mais informações sobre depilação a laser.`
+        : `Olá! Vi o anúncio da Espaçolaser e quero mais informações sobre depilação a laser.`;
 
-        setStatus("Redirecionando para o WhatsApp...");
-
-        const mensagem = utmData.utm_term
-          ? `Olá! Vi o anúncio da @${origem} de ${utmData.utm_term} e quero mais informações sobre depilação a laser.`
-          : `Olá! Vi o anúncio da Espaçolaser e quero mais informações sobre depilação a laser.`;
-
-        window.location.href = `https://wa.me/${WPP_NUMBER}?text=${encodeURIComponent(mensagem)}`;
-      })();
+      window.location.href = `https://wa.me/${WPP_NUMBER}?text=${encodeURIComponent(mensagem)}`;
     });
   }, [origem, label]);
 
