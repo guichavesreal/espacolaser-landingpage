@@ -7,8 +7,8 @@ import {
   CheckCircle, Star, ChevronDown, MessageCircle, Sparkles, Users, Navigation,
 } from "lucide-react";
 
-const WPP_URL = `https://wa.me/5519998392091?text=${encodeURIComponent("Olá! Vi o anúncio da Espaçolaser Americana e quero mais informações sobre as 3 sessões grátis.")}`;
-const FONT_HEADING = "'Montserrat', sans-serif";
+const WPP_URL = `https://wa.me/5519998392091?text=${encodeURIComponent("Olá! Vi o anúncio da Espaçolaser Americana e quero mais informações sobre as 3 sessões grátis.")}`;const SHEETS_URL =
+  "https://script.google.com/macros/s/AKfycbzHrH8s2VG1ZQdRylo_maYrxCKLykIqyLTIkhbd2sYz9NGxIRH1QpBnZwfj_LPHGH-sNw/exec";const FONT_HEADING = "'Montserrat', sans-serif";
 const FONT_BODY = "'Open Sans', sans-serif";
 
 // ─── Paleta ────────────────────────────────────────────────────────────────────
@@ -74,11 +74,38 @@ function HeroWithForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | n
     return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim() || phone.replace(/\D/g, "").length < 10) return;
+
     setLoading(true);
-    setTimeout(() => { setLoading(false); setSubmitted(true); }, 900);
+
+    const leadData = {
+      tipo: "form",
+      origem: "FormSite",
+      nome: name.trim(),
+      whatsapp: phone.replace(/\D/g, ""),
+      utm_source: "",
+      utm_campaign: "",
+      utm_content: "",
+      utm_term: "",
+      fbclid: "",
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      await fetch(SHEETS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(leadData),
+      });
+    } catch (error) {
+      console.error("Erro ao enviar lead para o Google Sheets:", error);
+    } finally {
+      setLoading(false);
+      setSubmitted(true);
+    }
   }
 
   return (
