@@ -4,7 +4,7 @@ const GTM_ID = "GTM-TNMM6F66";
 const GA_ID = "G-DZW429EFK8";
 const META_PIXEL_ID = "1179417823827972";
 const SHEETS_URL =
-  "https://script.google.com/macros/s/AKfycbzbrZF3ROnEOOBa5u0w0xSSfRNC3e4vUiTewMXMn-s565Dqfg93wWD-VLRB_mpkxotD_A/exec";
+  "https://script.google.com/macros/s/AKfycbzHrH8s2VG1ZQdRylo_maYrxCKLykIqyLTIkhbd2sYz9NGxIRH1QpBnZwfj_LPHGH-sNw/exec";
 const WPP_NUMBER = "5519998392091";
 
 declare global {
@@ -26,42 +26,32 @@ declare global {
 interface Props {
   origem: string;
   label: string;
-  metaPixelId?: string;
 }
 
-export default function WppRedirect({ origem, label, metaPixelId }: Props) {
+export default function WppRedirect({ origem, label }: Props) {
   const [status, setStatus] = useState("Aguardando rastreamento...");
 
   useEffect(() => {
-    // ── 1. GTM (inline IIFE to match snippet) ─────────────────────────────────
+    // ── 1. GTM ──────────────────────────────────────────────────────────────
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
 
-    const gtmInline = document.createElement("script");
-    gtmInline.text = `(function (w, d, s, l, i) {
-            w[l] = w[l] || []; w[l].push({
-                'gtm.start': new Date().getTime(), event: 'gtm.js'
-            });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : '';
-            j.async = true;
-            j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', '${GTM_ID}');`;
-    document.head.appendChild(gtmInline);
+    const gtmScript = document.createElement("script");
+    gtmScript.async = true;
+    gtmScript.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
+    document.head.appendChild(gtmScript);
 
-    // ── 2. gtag (load lib then initialise) ───────────────────────────────────
-    const gtagScript = document.createElement("script");
-    gtagScript.async = true;
-    gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
-    document.head.appendChild(gtagScript);
-
-    window.dataLayer = window.dataLayer || [];
+    // ── 2. gtag ──────────────────────────────────────────────────────────────
     window.gtag = function (...args: unknown[]) {
       window.dataLayer.push(args);
     };
     window.gtag("js", new Date());
     window.gtag("config", GA_ID);
+
+    const gtagScript = document.createElement("script");
+    gtagScript.async = true;
+    gtagScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_ID}`;
+    document.head.appendChild(gtagScript);
 
     // ── 3. Meta Pixel ────────────────────────────────────────────────────────
     if (!window.fbq) {
@@ -79,21 +69,8 @@ export default function WppRedirect({ origem, label, metaPixelId }: Props) {
       pixelScript.src = "https://connect.facebook.net/en_US/fbevents.js";
       document.head.appendChild(pixelScript);
     }
-    const pixelId = metaPixelId || META_PIXEL_ID;
-    window.fbq("init", pixelId);
+    window.fbq("init", META_PIXEL_ID);
     window.fbq("track", "PageView");
-
-    // Add noscript fallback image for Meta Pixel (equivalent to provided noscript)
-    try {
-      const noscriptImg = document.createElement("img");
-      noscriptImg.height = 1;
-      noscriptImg.width = 1;
-      noscriptImg.style.display = "none";
-      noscriptImg.src = `https://www.facebook.com/tr?id=${pixelId}&ev=PageView&noscript=1`;
-      document.body.appendChild(noscriptImg);
-    } catch (e) {
-      // ignore if body not available
-    }
 
     // ── 4. Captura UTMs e envia para planilha ────────────────────────────────
     const params = new URLSearchParams(window.location.search);
