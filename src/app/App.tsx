@@ -7,8 +7,10 @@ import {
   CheckCircle, Star, ChevronDown, MessageCircle, Sparkles, Users, Navigation,
 } from "lucide-react";
 
-const WPP_URL = `https://wa.me/5519998392091?text=${encodeURIComponent("Olá! Vi o anúncio da Espaçolaser Americana e quero mais informações sobre as 3 sessões grátis.")}`;const SHEETS_URL =
-  "https://script.google.com/macros/s/AKfycbzHrH8s2VG1ZQdRylo_maYrxCKLykIqyLTIkhbd2sYz9NGxIRH1QpBnZwfj_LPHGH-sNw/exec";const FONT_HEADING = "'Montserrat', sans-serif";
+const WPP_URL = `https://wa.me/5519998392091?text=${encodeURIComponent("Olá! Vi o anúncio da Espaçolaser Americana e quero mais informações sobre as 3 sessões grátis.")}`;
+const SHEETS_URL =
+  "https://script.google.com/macros/s/AKfycbzHrH8s2VG1ZQdRylo_maYrxCKLykIqyLTIkhbd2sYz9NGxIRH1QpBnZwfj_LPHGH-sNw/exec";
+const FONT_HEADING = "'Montserrat', sans-serif";
 const FONT_BODY = "'Open Sans', sans-serif";
 
 // ─── Paleta ────────────────────────────────────────────────────────────────────
@@ -97,7 +99,6 @@ function HeroWithForm({ formRef }: { formRef: React.RefObject<HTMLDivElement | n
       await fetch(SHEETS_URL, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(leadData),
       });
     } catch (error) {
